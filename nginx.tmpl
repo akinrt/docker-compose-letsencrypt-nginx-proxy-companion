@@ -266,10 +266,13 @@ server {
 	add_header Strict-Transport-Security "{{ trim $hsts }}; includeSubDomains" always;
 	{{ end }}
 	add_header Content-Security-Policy "default-src https: data: 'unsafe-inline' 'unsafe-eval'" always;
-	add_header Public-Key-Pins "pin-sha256='X3pGTSOuJeEVw989IJ/cEtXUEmy52zs1TZQrU06KUKg='; pin-sha256='MHJYVThihUrJcxW6wcqyOISTXIsInsdj3xK8QrZbHec='; pin-sha256='isi41AizREkLvvft0IRW4u3XMFR2Yg7bvrF7padyCJg='; includeSubdomains; max-age=2592000" always;
+	add_header Public-Key-Pins pin-sha256="ttS3eSrOHgbK0WfzhL7cPfcRtc3V78i90HkshRqlF7Y=" pin-sha256="YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg=" pin-sha256="Vjs8r4z+80wjNcr1YKepWQboSIRi63WsWXhIMN+eWys="; includeSubdomains; max-age=2592000" always;
 	add_header X-Frame-Options "SAMEORIGIN" always;
 	add_header X-Xss-Protection "1; mode=block" always;
 	add_header X-Content-Type-Options "nosniff" always;
+	sendfile off;
+	etag off;
+	if_modified_since off;
 	{{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
 	include {{ printf "/etc/nginx/vhost.d/%s" $host }};
 	{{ else if (exists "/etc/nginx/vhost.d/default") }}
@@ -277,6 +280,7 @@ server {
 	{{ end }}
 
 	location / {
+		expires -1;
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
 		uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
